@@ -248,6 +248,8 @@ def repair_wheel_windows(lib_path, whl, out_dir):
         "-m",
         "delvewheel",
         "repair",
+        "-vv",
+        "--no-mangle-all",
         f"--wheel-dir={out_dir}",
         whl,
     ]
