@@ -67,13 +67,13 @@ jobs:
         if: ${{ matrix.os != 'ubuntu-22.04' }}
         shell: bash -l {0}
         run: |
-          conda install -c cadquery -n cadquery-ocp -y ocp=7.8.1.* vtk=9.2.*
+          conda install -c cadquery -n cadquery-ocp -y cadquery/label/dev::ocp=7.8.1.* vtk=9.2.*
 
       - name: Conda Deps Setup Linux
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         shell: bash -l {0}
         run: |
-          conda install -c cadquery -n cadquery-ocp -y ocp=7.8.1.* vtk=9.2.* occt=7.8.1=all* auditwheel
+          conda install -c cadquery -n cadquery-ocp -y cadquery/label/dev::ocp=7.8.1.* vtk=9.2.* occt=7.8.1=all* auditwheel
 
       - name: Pip Deps Setup 1
         shell: bash -l {0}
