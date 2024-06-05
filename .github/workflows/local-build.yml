@@ -43,7 +43,7 @@ jobs:
         run: |
           echo 'Building wheel for Python ${{ matrix.python-version }}'
           echo 'Conda Deps Setup'
-          CONDA_SUBDIR=osx-arm64 conda create --yes -n ocp-build-system -c cadquery -c conda-forge python=${{ matrix.python-version }} ocp=7.7.2.* vtk=9.2.* pip
+          CONDA_SUBDIR=osx-arm64 conda create --yes -n ocp-build-system -c cadquery -c conda-forge python=${{ matrix.python-version }} cadquery/label/dev::ocp=7.8.1.* vtk=9.2.* pip
           conda run -n ocp-build-system conda config --env --set subdir osx-arm64
           conda run -n ocp-build-system pip install build setuptools wheel requests delocate auditwheel delvewheel
 
