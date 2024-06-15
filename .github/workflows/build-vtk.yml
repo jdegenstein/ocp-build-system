@@ -55,8 +55,11 @@ jobs:
           fi
 
       - name: Windows Deps
-        shell: bash -l {0}
+        shell: cmd
         run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          "C:\Program Files\Git\bin\bash.exe"
+          ls -lR "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
           if [ "$RUNNER_OS" == "Windows" ]; then
             micromamba info
             micromamba install -c conda-forge vs2019_win-64
