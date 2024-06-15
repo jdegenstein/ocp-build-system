@@ -69,21 +69,38 @@ jobs:
           vswhere
 
       - name: Build Wheel from Scratch
-        shell: bash -l {0}
+        shell: cmd
         run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           micromamba info
           cl
           pip install --upgrade setuptools
-          mkdir -p ./vtk/build
+          mkdir vtk\build
           curl -L -O https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz  # Update this for newer releases of VTK
-          tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
-          cd ./vtk/build
-          cl -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
+          tar -zxf VTK-9.2.6.tar.gz --directory vtk\
+          cd vtk\build
+          cl -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ..\VTK-9.2.6
           ninja
           python setup.py bdist_wheel
-          cd ../../
-          find ./ -iname *.whl
-
+          cd ..\..\
+          find *.whl
+          
+      # - name: Build Wheel from Scratch
+      #   shell: bash -l {0}
+      #   run: |
+      #     micromamba info
+      #     cl
+      #     pip install --upgrade setuptools
+      #     mkdir -p ./vtk/build
+      #     curl -L -O https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz  # Update this for newer releases of VTK
+      #     tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
+      #     cd ./vtk/build
+      #     cl -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
+      #     ninja
+      #     python setup.py bdist_wheel
+      #     cd ../../
+      #     find ./ -iname *.whl
+      
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
