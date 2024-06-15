@@ -58,13 +58,11 @@ jobs:
         shell: cmd
         run: |
           "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          "C:\Program Files\Git\bin\bash.exe"
-          ls -lR "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            micromamba info
-            micromamba install -c conda-forge vs2019_win-64
-            vswhere
-          fi
+          dir "C:\Program Files\"
+          dir "C:\Program Files\Git"
+          micromamba info
+          micromamba install -c conda-forge vs2019_win-64
+          vswhere
 
       - name: Build Wheel from Scratch
         shell: bash -l {0}
