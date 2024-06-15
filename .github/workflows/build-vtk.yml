@@ -39,7 +39,9 @@ jobs:
           environment-name: build-vtk # required by micromamba
           create-args: >-
             python=${{ matrix.python-version }}
-
+            
+      - uses: ilammy/msvc-dev-cmd@v1
+      
       - name: Ubuntu Deps
         shell: bash -l {0}
         run: |
@@ -60,21 +62,11 @@ jobs:
         run: |
           cd
           cd
-          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           echo "+++++++++++"
-          cl.exe
-          echo "+++++++++++"
-          "C:\Program Files\Git\usr\bin\bash.EXE"
-          echo "+++++++++++"
-          cl
-          micromamba info
-          micromamba install -c conda-forge vs2019_win-64
-          vswhere
 
       - name: Build Wheel from Scratch
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           micromamba info
           cl
           pip install --upgrade setuptools
