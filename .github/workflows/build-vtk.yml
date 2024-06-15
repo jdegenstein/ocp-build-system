@@ -58,8 +58,7 @@ jobs:
         shell: cmd
         run: |
           "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          dir "C:\Program Files\"
-          dir "C:\Program Files\Git"
+          "C:\Program Files\Git\usr\bin\bash.EXE" -l {0}
           micromamba info
           micromamba install -c conda-forge vs2019_win-64
           vswhere
