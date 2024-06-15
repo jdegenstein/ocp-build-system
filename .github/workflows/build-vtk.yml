@@ -71,6 +71,7 @@ jobs:
       - name: Build Wheel from Scratch
         shell: cmd
         run: |
+          micromamba activate build-vtk
           micromamba info
           cl
           pip install --upgrade setuptools
