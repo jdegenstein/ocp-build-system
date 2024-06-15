@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ 'macos-14', 'windows-2019' ]
+        os: [ 'windows-2019' ]
         # os: [ 'ubuntu-20.04', 'macos-11', 'macos-14', 'windows-2019' ]
         python-version: [ '3.11' ]
         # python-version: [ '3.9', '3.10', '3.11', '3.12' ]
@@ -22,9 +22,9 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
 
       # - name: Setup Python Env
       #   shell: bash -l {0}
@@ -60,6 +60,7 @@ jobs:
           if [ "$RUNNER_OS" == "Windows" ]; then
             micromamba info
             micromamba install -c conda-forge vs2019_win-64
+            vswhere
           fi
 
       - name: Build Wheel from Scratch
