@@ -61,7 +61,8 @@ jobs:
           cd
           cd
           "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cl
+          echo "+++++++++++"
+          cl.exe
           echo "+++++++++++"
           "C:\Program Files\Git\usr\bin\bash.EXE"
           echo "+++++++++++"
