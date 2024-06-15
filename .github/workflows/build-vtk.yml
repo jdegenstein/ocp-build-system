@@ -37,6 +37,10 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: build-vtk # required by micromamba
+          init-shell: >-
+            bash
+            powershell
+            cmd
           create-args: >-
             python=${{ matrix.python-version }}
             
