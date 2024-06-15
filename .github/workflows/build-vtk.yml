@@ -55,10 +55,15 @@ jobs:
           fi
 
       - name: Windows Deps
+        if: ${{ matrix.os == 'windows-2019' }}
         shell: cmd
         run: |
           "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          "C:\Program Files\Git\usr\bin\bash.EXE" -l {0}
+          cl
+          echo "+++++++++++"
+          "C:\Program Files\Git\usr\bin\bash.EXE"
+          echo "+++++++++++"
+          cl
           micromamba info
           micromamba install -c conda-forge vs2019_win-64
           vswhere
@@ -67,12 +72,13 @@ jobs:
         shell: bash -l {0}
         run: |
           micromamba info
+          cl
           pip install --upgrade setuptools
           mkdir -p ./vtk/build
           curl -L -O https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz  # Update this for newer releases of VTK
           tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
           cd ./vtk/build
-          cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
+          cl -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
           ninja
           python setup.py bdist_wheel
           cd ../../
