@@ -80,6 +80,7 @@ jobs:
           tar -zxf VTK-9.2.6.tar.gz --directory vtk\
           cd vtk\build
           cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DCMAKE_BUILD_TYPE=Release ..\VTK-9.2.6
+          ninja
           python setup.py bdist_wheel
           cd ..\..\
           dir /s
