@@ -22,29 +22,31 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-      # - name: Setup Python Env
-      #   shell: bash -l {0}
-      #   # The `bdist_wheel` command requires the `wheel` package
-      #   run: |
-      #     python3 -m pip install --upgrade pip
-      #     python3 -m pip install --upgrade wheel
-      #     python3 -m pip freeze
+      - name: Setup Python Env
+        shell: cmd
+        # The `bdist_wheel` command requires the `wheel` package
+        run: |
+          python -V
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade wheel
+          python -m pip freeze
+
       - uses: ilammy/msvc-dev-cmd@v1
   
-      - name: Setup Micromamba
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-name: build-vtk # required by micromamba
-          init-shell: >-
-            bash
-            powershell
-            cmd.exe
-          create-args: >-
-            python=${{ matrix.python-version }}
+      # - name: Setup Micromamba
+      #   uses: mamba-org/setup-micromamba@v1
+      #   with:
+      #     environment-name: build-vtk # required by micromamba
+      #     init-shell: >-
+      #       bash
+      #       powershell
+      #       cmd.exe
+      #     create-args: >-
+      #       python=${{ matrix.python-version }}
             
       - name: Ubuntu Deps
         shell: bash -l {0}
@@ -71,9 +73,6 @@ jobs:
       - name: Build Wheel from Scratch
         shell: cmd
         run: |
-          micromamba shell reinit --shell cmd.exe
-          micromamba activate build-vtk
-          micromamba info
           cl
           pip install --upgrade setuptools
           mkdir vtk\build
