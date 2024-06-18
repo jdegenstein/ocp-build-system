@@ -13,8 +13,10 @@ jobs:
 
     strategy:
       matrix:
-        os: [ 'ubuntu-20.04', 'macos-13', 'macos-14', 'windows-2019' ]
-        python-version: [ '3.9', '3.10', '3.11', '3.12' ]
+        os: [ 'macos-13', 'macos-14' ]
+        # os: [ 'ubuntu-20.04', 'macos-13', 'macos-14', 'windows-2019' ]
+        python-version: [ '3.11' ]
+        # python-version: [ '3.9', '3.10', '3.11', '3.12' ]
 
     steps:
       - name: Checkout project
@@ -92,6 +94,9 @@ jobs:
           micromamba info
           python -V
           pip install --upgrade setuptools
+          echo $MACOSX_DEPLOYMENT_TARGET
+          export MACOSX_DEPLOYMENT_TARGET=10.14
+          echo $MACOSX_DEPLOYMENT_TARGET
           mkdir -p ./vtk/build
           curl -L -O https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz  # Update this for newer releases of VTK
           tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
