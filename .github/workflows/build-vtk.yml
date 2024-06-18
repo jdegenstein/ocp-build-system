@@ -95,7 +95,7 @@ jobs:
           python -V
           pip install --upgrade setuptools
           echo $MACOSX_DEPLOYMENT_TARGET
-          export MACOSX_DEPLOYMENT_TARGET=10.14
+          export MACOSX_DEPLOYMENT_TARGET=10.13
           echo $MACOSX_DEPLOYMENT_TARGET
           mkdir -p ./vtk/build
           curl -L -O https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz  # Update this for newer releases of VTK
