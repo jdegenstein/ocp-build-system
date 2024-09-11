@@ -36,6 +36,7 @@ jobs:
             python=${{ matrix.python-version }}
 
       - name: Setup Python Env
+        if: ${{ runner.os != 'macOS' }}
         # shell: bash -l {0}
         # The `bdist_wheel` command requires the `wheel` package
         run: |
@@ -65,6 +66,10 @@ jobs:
         run: |
           brew install ninja
           micromamba info
+          python -V
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade wheel
+          python -m pip freeze
 
       # - name: Windows Deps
       #   shell: bash -l {0} #cmd?
@@ -92,6 +97,9 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
         run: |
           micromamba info
+          echo $MACOSX_DEPLOYMENT_TARGET
+          export MACOSX_DEPLOYMENT_TARGET=11.0
+          echo $MACOSX_DEPLOYMENT_TARGET
           python -V
           pip install --upgrade setuptools
           mkdir -p ./vtk/build
@@ -125,29 +133,30 @@ jobs:
         shell: bash -l {0}
         run: echo "PYTHON_VERSION_NO_DOTS=$(echo ${{ matrix.python-version }} | tr -d '.')" >> $GITHUB_ENV
 
-      - name: Rename MacOS ARM64 wheel
-        shell: bash -l {0}
-        if: ${{ matrix.os == 'macos-14' }}
-        run: |
-          echo "WHEEL_OS_VERSION=macosx_11_0_arm64" >> $GITHUB_ENV
+      # TODO: these seem non-functional try deleting later
+      # - name: Rename MacOS ARM64 wheel
+      #   shell: bash -l {0}
+      #   if: ${{ matrix.os == 'macos-14' }}
+      #   run: |
+      #     echo "WHEEL_OS_VERSION=macosx_11_0_arm64" >> $GITHUB_ENV
 
-      - name: Rename MacOS AMD64 wheel
-        shell: bash -l {0}
-        if: ${{ matrix.os == 'macos-13' }}
-        run: |
-          echo "WHEEL_OS_VERSION=macosx_10_13_x86_64" >> $GITHUB_ENV
+      # - name: Rename MacOS AMD64 wheel
+      #   shell: bash -l {0}
+      #   if: ${{ matrix.os == 'macos-13' }}
+      #   run: |
+      #     echo "WHEEL_OS_VERSION=macosx_10_13_x86_64" >> $GITHUB_ENV
 
-      - name: Rename Linux AMD64 wheel
-        shell: bash -l {0}
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        run: |
-          echo "WHEEL_OS_VERSION=linux_x86_64" >> $GITHUB_ENV
+      # - name: Rename Linux AMD64 wheel
+      #   shell: bash -l {0}
+      #   if: ${{ matrix.os == 'ubuntu-20.04' }}
+      #   run: |
+      #     echo "WHEEL_OS_VERSION=linux_x86_64" >> $GITHUB_ENV
 
-      - name: Rename Windows AMD64 wheel
-        shell: bash -l {0}
-        if: ${{ matrix.os == 'windows-2019' }}
-        run: |
-          echo "WHEEL_OS_VERSION=win_amd64" >> $GITHUB_ENV
+      # - name: Rename Windows AMD64 wheel
+      #   shell: bash -l {0}
+      #   if: ${{ matrix.os == 'windows-2019' }}
+      #   run: |
+      #     echo "WHEEL_OS_VERSION=win_amd64" >> $GITHUB_ENV
 
       - name: Edit wheel
         shell: bash -l {0}
