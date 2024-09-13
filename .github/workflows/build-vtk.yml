@@ -112,6 +112,8 @@ jobs:
           tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
           cd ./vtk/build
           cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_APPLE_SILICON_PROCESSOR="arm64" -DCMAKE_C_FLAGS="-Wno-error=incompatible-function-pointer-types" -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
+          ls -lR
+          cat CMakeLists.txt
           ninja
           python setup.py bdist_wheel
           cd ../../
