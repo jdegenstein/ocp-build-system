@@ -69,6 +69,7 @@ jobs:
         shell: bash -l {0}
         if: ${{ runner.os == 'macOS' }}
         run: |
+          printenv
           brew install ninja
           micromamba info
           python -V
@@ -101,6 +102,7 @@ jobs:
         shell: bash -l {0}
         if: ${{ runner.os == 'macOS' }}
         run: |
+          printenv
           micromamba info
           echo $MACOSX_DEPLOYMENT_TARGET
           export MACOSX_DEPLOYMENT_TARGET=11.0
@@ -112,7 +114,7 @@ jobs:
           tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
           cd ./vtk/build
           cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_C_FLAGS="-Wno-error=incompatible-function-pointer-types" -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
-          sed -i -e 's/-arch x86_64/-arch arm64/g' build.ninja
+          printenv
           ninja
           python setup.py bdist_wheel
           cd ../../
