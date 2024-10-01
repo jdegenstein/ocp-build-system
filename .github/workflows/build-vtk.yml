@@ -115,6 +115,9 @@ jobs:
           ls -lR
           cat CMakeLists.txt
           ninja
+          echo $DYLD_LIBRARY_PATH 
+          export DYLD_LIBRARY_PATH=build/lib.macosx-10.9-universal2-cpython-311/vtkmodules/.dylibs
+          echo $DYLD_LIBRARY_PATH          
           python setup.py bdist_wheel
           cd ../../
           find ./ -iname *.whl
