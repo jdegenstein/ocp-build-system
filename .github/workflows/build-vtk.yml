@@ -120,7 +120,7 @@ jobs:
           ninja
           ls -alR
           echo $DYLD_LIBRARY_PATH 
-          export DYLD_LIBRARY_PATH=build/lib.macosx-10.9-universal2-cpython-311/vtkmodules/.dylibs
+          export DYLD_LIBRARY_PATH=/Users/runner/work/ocp-build-system/ocp-build-system/vtk/build/lib.macosx-10.9-universal2-cpython-311/vtkmodules/.dylibs
           echo $DYLD_LIBRARY_PATH          
           # python setup.py bdist_wheel
           python -m build
