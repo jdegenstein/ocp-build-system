@@ -48,6 +48,7 @@ jobs:
           python -V
           python -m pip install --upgrade pip
           python -m pip install --upgrade wheel
+          python -m pip install --upgrade build
           python -m pip freeze
           
       - name: Setup Windows build environment (MSVC)
@@ -74,6 +75,7 @@ jobs:
           python -V
           python -m pip install --upgrade pip
           python -m pip install --upgrade wheel
+          python -m pip install --upgrade build
           python -m pip freeze
 
       # - name: Windows Deps
@@ -112,10 +114,11 @@ jobs:
           tar -zxf VTK-9.2.6.tar.gz --directory ./vtk/
           cd ./vtk/build
           cmake -GNinja -DVTK_WHEEL_BUILD=ON -DVTK_WRAP_PYTHON=ON -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_APPLE_SILICON_PROCESSOR="arm64" -DCMAKE_C_FLAGS="-Wno-error=incompatible-function-pointer-types" -DCMAKE_BUILD_TYPE=Release ../VTK-9.2.6
-          ls -lR
+          pwd
+          ls -alR
           cat CMakeLists.txt
           ninja
-          ls -lR
+          ls -alR
           echo $DYLD_LIBRARY_PATH 
           export DYLD_LIBRARY_PATH=build/lib.macosx-10.9-universal2-cpython-311/vtkmodules/.dylibs
           echo $DYLD_LIBRARY_PATH          
