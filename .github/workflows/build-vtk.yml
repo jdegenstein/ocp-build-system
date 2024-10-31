@@ -119,10 +119,7 @@ jobs:
           ls -alR
           cat CMakeLists.txt
           ninja -j3 # maybe delete later doesnt do anything possibly
-          ls -alR
-          echo $DYLD_LIBRARY_PATH 
-          export DYLD_LIBRARY_PATH=/Users/runner/work/ocp-build-system/ocp-build-system/vtk/build/lib.macosx-10.9-universal2-cpython-311/vtkmodules/.dylibs
-          echo $DYLD_LIBRARY_PATH          
+          ls -alR        
           python setup.py bdist_wheel
           # python -m build
           cd ../../
@@ -189,6 +186,13 @@ jobs:
       #     rm ./vtk/build/dist/*.whl  # Remove the old wheel file
       #     mv *.whl ./vtk/build/dist/  # Move the new wheel file to the dist directory
 
+      #TODO: disable this once everything works again
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cadquery-vtk-${{ matrix.os }}-cp${{ matrix.python-version }}
+          path: vtk/build/dist/*.whl
+
       - name: Test wheel
         shell: bash -l {0}
         run: |
@@ -196,8 +200,9 @@ jobs:
           pip install vtk/build/dist/*.whl
           python -c "import vtk;print('vtk imported successfully')"
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: cadquery-vtk-${{ matrix.os }}-cp${{ matrix.python-version }}
-          path: vtk/build/dist/*.whl
+      # TODO: RE-enable post test artifact upload, and disable pre-test
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cadquery-vtk-${{ matrix.os }}-cp${{ matrix.python-version }}
+      #     path: vtk/build/dist/*.whl
