@@ -120,8 +120,8 @@ jobs:
           cat CMakeLists.txt
           ninja -j3
           ls -alR        
-          # python setup.py bdist_wheel
-          python -m build -w -n
+          python setup.py bdist_wheel
+          # python -m build -w -n
           cd ../../
           find ./ -iname *.whl
 
