@@ -108,12 +108,10 @@ jobs:
           version: "15.0" # instead of 15.0.7
 
       - name: Get number of CPUs
-        if: steps.cache-occt-restore.outputs.cache-hit != 'true'
         shell: bash -l {0}
         id: cpu-count
         run: |
-          # micromamba activate build-ocp
-
+          source ./.venv/Scripts/Activate
           cpu_count=$(python -c "import multiprocessing; print(multiprocessing.cpu_count())")
           echo "cpu_count=$cpu_count" >> $GITHUB_OUTPUT
           echo "=> Using $cpu_count CPUs"
@@ -123,7 +121,7 @@ jobs:
       # - - - - - - - - - - - - - - - - - - - - -
 
       - name: (Ubuntu) Install dependencies
-        if: runner.os == 'Linux' && steps.cache-occt-restore.outputs.cache-hit != 'true'
+        if: runner.os == 'Linux'
         shell: bash -l {0}
         run: |
           # do not use freeimage freetype fontconfig from anaconda. Prevents from manylinux_2_31_x86_64 wheel
@@ -133,7 +131,7 @@ jobs:
                                   libfreeimage-dev libfreetype-dev libfontconfig-dev
 
       - name: (Mac, Windows) Install dependencies
-        if: runner.os != 'Linux' && steps.cache-occt-restore.outputs.cache-hit != 'true'
+        if: runner.os != 'Linux'
         shell: bash -l {0}
         run: |
           # micromamba activate build-ocp
@@ -270,7 +268,6 @@ jobs:
       # - - - - - - - - - - - - - - - - - - - - -
 
       - name: (All) Download and prepare OCCT SDK
-        if: steps.cache-occt-restore.outputs.cache-hit != 'true'
         shell: bash -l {0}
         run: |
           set -euo pipefail
@@ -311,7 +308,7 @@ jobs:
           mkdir -p ~/opt/local/occt-${{ env.OCCT }}-${{ matrix.use-vtk }}
 
       - name: (Linux, Mac) Compile and install OCCT SDK
-        if: runner.os  != 'Windows' && steps.cache-occt-restore.outputs.cache-hit != 'true'
+        if: runner.os  != 'Windows'
         shell: bash -l {0}
         run: |
           set -euo pipefail
@@ -379,7 +376,7 @@ jobs:
           ninja -C build install
 
       - name: (Windows) Compile and install OCCT SDK
-        if: runner.os  == 'Windows' && steps.cache-occt-restore.outputs.cache-hit != 'true'
+        if: runner.os  == 'Windows'
         shell: cmd
         run: |
           .venv\Scripts\activate
