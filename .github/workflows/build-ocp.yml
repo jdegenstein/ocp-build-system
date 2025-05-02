@@ -80,26 +80,26 @@ jobs:
             ~/opt/local/occt-${{ env.OCCT }}-${{ matrix.use-vtk }}
           key: OCCT-${{ env.OCCT }}-py-${{ matrix.python-version }}-${{ matrix.use-vtk }}-${{ matrix.os }}-
 
-      - name: (All) Set up Python ${{ matrix.python-version }} via micromamba
-        if: steps.cache-occt-restore.outputs.cache-hit != 'true'
+      - name: (All) Set up uv
         uses: astral-sh/setup-uv@v5
           
-      - name: Install PyPy 3.10
+      - name: (All) Install PyPy 3.10
         run: |
           uv python install pypy@${{ matrix.python-version }}
           uv venv --python pypy@3.10
+          dir
 
       - name: (Ubuntu) Activate venv and install deps
         if: runner.os == 'Linux'
         run: |
-          source ./venv/Scripts/Activate
+          source ./.venv/Scripts/Activate
           uv pip install ninja cmake setuptools>=75
 
-      - name: (Windows) Activate venv and install deps#
+      - name: (Windows) Activate venv and install deps
         if: runner.os == 'Windows'
         shell: bash -l {0}
         run: |
-          source ./venv/Scripts/Activate
+          source ./.venv/Scripts/Activate
           uv pip install ninja cmake setuptools>=75
           
       - name: Install LLVM and Clang
