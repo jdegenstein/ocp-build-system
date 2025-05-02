@@ -24,9 +24,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["macos-13", "macos-14", "ubuntu-20.04", "windows-2019"]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
-        use-vtk: ["vtk", "novtk"]
+        # os: ["macos-13", "macos-14", "ubuntu-20.04", "windows-2019"]
+        os: ["ubuntu-20.04", "windows-2019"]
+        # python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10"]
+        # use-vtk: ["vtk", "novtk"]
+        use-vtk: ["novtk"]
 
         include:
           - os: "macos-13"
@@ -79,19 +82,37 @@ jobs:
 
       - name: (All) Set up Python ${{ matrix.python-version }} via micromamba
         if: steps.cache-occt-restore.outputs.cache-hit != 'true'
-        uses: mamba-org/setup-micromamba@v1
+        uses: astral-sh/setup-uv@v5
+          
+      - name: Install PyPy 3.10
+        run: |
+          uv python install pypy@${{ matrix.python-version }}
+          uv venv --python pypy@3.10
+
+      - name: (Ubuntu) Activate venv and install deps
+        if: runner.os == 'Linux'
+        run: |
+          source ./venv/Scripts/Activate
+          uv pip install ninja cmake setuptools>=75
+
+      - name: (Windows) Activate venv and install deps
+        if: runner.os == 'Windows'
+        shell: bash -l {0}
+        run: |
+          /venv/Scripts/Activate
+          uv pip install ninja cmake setuptools>=75
+          
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
         with:
-          environment-file: environment-${{ matrix.python-version }}.yml
-          log-level: debug
-          init-shell: ${{ matrix.shells }}
-          cache-downloads: true
+          version: "15.0" # instead of 15.0.7
 
       - name: Get number of CPUs
         if: steps.cache-occt-restore.outputs.cache-hit != 'true'
         shell: bash -l {0}
         id: cpu-count
         run: |
-          micromamba activate build-ocp
+          # micromamba activate build-ocp
 
           cpu_count=$(python -c "import multiprocessing; print(multiprocessing.cpu_count())")
           echo "cpu_count=$cpu_count" >> $GITHUB_OUTPUT
@@ -115,8 +136,8 @@ jobs:
         if: runner.os != 'Linux' && steps.cache-occt-restore.outputs.cache-hit != 'true'
         shell: bash -l {0}
         run: |
-          micromamba activate build-ocp
-          micromamba install -y fontconfig=2.13.* freetype=2.12.* freeimage=3.18.*
+          # micromamba activate build-ocp
+          # micromamba install -y fontconfig=2.13.* freetype=2.12.* freeimage=3.18.*
 
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install gsed
@@ -149,100 +170,100 @@ jobs:
           fi
           ls -l
 
-      - name: (All) Install VTK SDK include files
-        if: matrix.use-vtk == 'vtk' && steps.cache-vtk-restore.outputs.cache-hit != 'true'
-        shell: bash -l {0}
-        run: |
-          set -euo pipefail
+      # - name: (All) Install VTK SDK include files
+      #   if: matrix.use-vtk == 'vtk' && steps.cache-vtk-restore.outputs.cache-hit != 'true'
+      #   shell: bash -l {0}
+      #   run: |
+      #     set -euo pipefail
 
-          # Create an environment with conda VTK to get the include files
-          micromamba create -y -n vtk python=${{ matrix.python-version }}
-          micromamba activate vtk
-          micromamba install -y vtk=${{ env.VTK }}
+      #     # Create an environment with conda VTK to get the include files
+      #     micromamba create -y -n vtk python=${{ matrix.python-version }}
+      #     micromamba activate vtk
+      #     micromamba install -y vtk=${{ env.VTK }}
 
-          DEST=~/opt/local/vtk-${{ env.VTK }}
-          rm -fr $DEST
-          mkdir -p $DEST/include
-          mkdir -p $DEST/bin
-          mkdir -p $DEST/lib
-          mkdir -p $DEST/lib/cmake
+      #     DEST=~/opt/local/vtk-${{ env.VTK }}
+      #     rm -fr $DEST
+      #     mkdir -p $DEST/include
+      #     mkdir -p $DEST/bin
+      #     mkdir -p $DEST/lib
+      #     mkdir -p $DEST/lib/cmake
 
-          cp -r $CONDA_PREFIX/${{ matrix.vtk_prefix }}include/vtk-${{ env.VTK_MAJOR }}/ $DEST/include/
-          cp cmake/vtk-config-${{ matrix.os }}.cmake $DEST/vtk-config.cmake
+      #     cp -r $CONDA_PREFIX/${{ matrix.vtk_prefix }}include/vtk-${{ env.VTK_MAJOR }}/ $DEST/include/
+      #     cp cmake/vtk-config-${{ matrix.os }}.cmake $DEST/vtk-config.cmake
 
-          micromamba deactivate
+      #     micromamba deactivate
 
-      - name: (Linux, Mac) Install VTK SDK libs
-        if: matrix.use-vtk == 'vtk' && runner.os != 'Windows' && steps.cache-vtk-restore.outputs.cache-hit != 'true'
-        shell: bash -l {0}
-        run: |
-          set -euo pipefail
+      # - name: (Linux, Mac) Install VTK SDK libs
+      #   if: matrix.use-vtk == 'vtk' && runner.os != 'Windows' && steps.cache-vtk-restore.outputs.cache-hit != 'true'
+      #   shell: bash -l {0}
+      #   run: |
+      #     set -euo pipefail
 
-          PY_VER=${{ matrix.python-version }}
+      #     PY_VER=${{ matrix.python-version }}
 
-          micromamba create -y -n vtk-$PY_VER python=$PY_VER
-          micromamba activate vtk-$PY_VER
+      #     micromamba create -y -n vtk-$PY_VER python=$PY_VER
+      #     micromamba activate vtk-$PY_VER
 
-          if [[ $PY_VER == 3.13 ]]; then
-            pip install cadquery_vtk-9.3.1*.whl
-          else
-            pip install vtk==${{ env.VTK }}
-          fi
+      #     if [[ $PY_VER == 3.13 ]]; then
+      #       pip install cadquery_vtk-9.3.1*.whl
+      #     else
+      #       pip install vtk==${{ env.VTK }}
+      #     fi
 
-          DEST=~/opt/local/vtk-${{ env.VTK }}
+      #     DEST=~/opt/local/vtk-${{ env.VTK }}
 
-          cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtkmodules/${{ matrix.vtk_libs }} $DEST/lib/
-          cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtk.py $DEST
+      #     cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtkmodules/${{ matrix.vtk_libs }} $DEST/lib/
+      #     cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtk.py $DEST
 
-          if [[ "$RUNNER_OS" == "Linux" && "$PY_VER" != "3.13" ]]; then
-            cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtk.libs/* $DEST/lib/
-          fi
+      #     if [[ "$RUNNER_OS" == "Linux" && "$PY_VER" != "3.13" ]]; then
+      #       cp $CONDA_PREFIX/lib/python$PY_VER/site-packages/vtk.libs/* $DEST/lib/
+      #     fi
 
-          micromamba deactivate
+      #     micromamba deactivate
 
-      - name: (Windows) Install VTK SDK libs
-        if: matrix.use-vtk == 'vtk' && runner.os  == 'Windows'  && steps.cache-vtk-restore.outputs.cache-hit != 'true'
-        shell: bash -l {0}
-        run: |
-          set -euo pipefail
+      # - name: (Windows) Install VTK SDK libs
+      #   if: matrix.use-vtk == 'vtk' && runner.os  == 'Windows'  && steps.cache-vtk-restore.outputs.cache-hit != 'true'
+      #   shell: bash -l {0}
+      #   run: |
+      #     set -euo pipefail
 
-          PY_VER=${{ matrix.python-version }}
+      #     PY_VER=${{ matrix.python-version }}
 
-          micromamba create -y -n vtk-$PY_VER python=$PY_VER
-          micromamba activate vtk-$PY_VER
+      #     micromamba create -y -n vtk-$PY_VER python=$PY_VER
+      #     micromamba activate vtk-$PY_VER
 
-          if [[ $PY_VER == 3.13 ]]; then
-            pip install cadquery_vtk-9.3.1*.whl
-            PKG=cadquery_vtk
-          else
-            pip install vtk==${{ env.VTK }}
-            PKG=vtk
-          fi
+      #     if [[ $PY_VER == 3.13 ]]; then
+      #       pip install cadquery_vtk-9.3.1*.whl
+      #       PKG=cadquery_vtk
+      #     else
+      #       pip install vtk==${{ env.VTK }}
+      #       PKG=vtk
+      #     fi
 
-          DEST=~/opt/local/vtk-${{ env.VTK }}
+      #     DEST=~/opt/local/vtk-${{ env.VTK }}
 
-          CONDA_PREFIX_POSIX=$(cygpath -u $CONDA_PREFIX)
-          cp $CONDA_PREFIX_POSIX/Lib/site-packages/$PKG.libs/*.dll $DEST/bin/
-          cp $CONDA_PREFIX_POSIX/Lib/site-packages/vtk.py $DEST
+      #     CONDA_PREFIX_POSIX=$(cygpath -u $CONDA_PREFIX)
+      #     cp $CONDA_PREFIX_POSIX/Lib/site-packages/$PKG.libs/*.dll $DEST/bin/
+      #     cp $CONDA_PREFIX_POSIX/Lib/site-packages/vtk.py $DEST
 
-          # Create the lib files needed for compilation
+      #     # Create the lib files needed for compilation
 
-          PATH='/c/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/':$PATH
-          cp create_lib.sh $DEST
-          pushd $DEST/lib/
-          ../create_lib.sh
-          popd
+      #     PATH='/c/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/':$PATH
+      #     cp create_lib.sh $DEST
+      #     pushd $DEST/lib/
+      #     ../create_lib.sh
+      #     popd
 
-          micromamba deactivate
+      #     micromamba deactivate
 
-      - name: (All) Cache VTK build folder
-        if: matrix.use-vtk == 'vtk'
-        id: cache-vtk-save
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/opt/local/vtk-${{ env.VTK }}
-          key: ${{ steps.cache-vtk-restore.outputs.cache-primary-key }}
+      # - name: (All) Cache VTK build folder
+      #   if: matrix.use-vtk == 'vtk'
+      #   id: cache-vtk-save
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: |
+      #       ~/opt/local/vtk-${{ env.VTK }}
+      #     key: ${{ steps.cache-vtk-restore.outputs.cache-primary-key }}
 
       # - - - - - - - - - - - - - - - - - - - - -
       #                OCCT SDK
@@ -295,7 +316,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          micromamba activate build-ocp
+          # micromamba activate build-ocp
+          ./venv/Scripts/Activate
           cd OCCT
 
           rm -fr build
@@ -313,7 +335,7 @@ jobs:
               -D USE_TBB=OFF \
               -D USE_FREEIMAGE=ON \
               -D USE_FREETYPE=ON \
-              -D USE_RAPIDJSON=ON \
+              -D USE_RAPIDJSON=OFF \
               -D USE_FFMPEG=OFF \
               \
               -D BUILD_CPP_STANDARD=C++17 \
@@ -341,7 +363,7 @@ jobs:
               -D USE_TBB=OFF \
               -D USE_FREEIMAGE=ON \
               -D USE_FREETYPE=ON \
-              -D USE_RAPIDJSON=ON \
+              -D USE_RAPIDJSON=OFF \
               -D USE_FFMPEG=OFF \
               \
               -D BUILD_CPP_STANDARD=C++17 \
@@ -360,7 +382,8 @@ jobs:
         if: runner.os  == 'Windows' && steps.cache-occt-restore.outputs.cache-hit != 'true'
         shell: cmd
         run: |
-          call C:\Users\runneradmin\micromamba\condabin\micromamba.bat activate build-ocp 
+          # call C:\Users\runneradmin\micromamba\condabin\micromamba.bat activate build-ocp 
+          .venv\Scripts\activate
           cd OCCT
 
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
@@ -373,7 +396,7 @@ jobs:
               -D USE_TBB=OFF ^
               -D USE_FREEIMAGE=ON ^
               -D USE_FREETYPE=ON ^
-              -D USE_RAPIDJSON=ON ^
+              -D USE_RAPIDJSON=OFF ^
               -D USE_FFMPEG=OFF ^
               ^
               -D Python3_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
@@ -399,7 +422,7 @@ jobs:
               -D USE_TBB=OFF ^
               -D USE_FREEIMAGE=ON ^
               -D USE_FREETYPE=ON ^
-              -D USE_RAPIDJSON=ON ^
+              -D USE_RAPIDJSON=OFF ^
               -D USE_FFMPEG=OFF ^
               ^
               -D Python3_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
@@ -939,7 +962,7 @@ jobs:
           echo "VTK_DIR = %VTK_DIR%"
           type CMakeLists.txt
 
-          xcopy "%CONDA_PREFIX%/Library/include/rapidjson" "%USERPROFILE%\opt\local\occt-${{ env.OCCT }}-${{ matrix.use-vtk }}\inc\rapidjson" /E /I /H /C
+
 
           cmake -B build -S OCP -G Ninja ^
             -D CMAKE_BUILD_TYPE=Release ^
