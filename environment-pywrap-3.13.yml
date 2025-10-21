@@ -4,7 +4,7 @@ channels:
 dependencies:
   - occt=7.9.1=all*
   - pybind11=2.13.*
-  - python=3.13
+  - python=3.13t
   - cmake >3.24
   - ninja
   - clangdev
